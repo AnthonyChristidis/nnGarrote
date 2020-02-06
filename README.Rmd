@@ -4,7 +4,7 @@
 nnGarrote
 =====
 
-This package provides functions for generating all possible nnGarrotes of variables into groups, and computing the adaptive nnGarrote (best nnGarrote selection) regression estimator for low-dimensional data.
+This package provides functions to compute the non-negative garrote estimator with (or without) a penalized initial estimator.
 
 ------------------------------------------------------------------------
 
