@@ -119,12 +119,12 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
   # Creating the folds
   folds <- caret::createFolds(1:nrow(x), nfolds)
 
+  # Centering and scaling data
+  x.s <- scale(x, center=TRUE, scale=TRUE)
+  y.s <- scale(y, center=TRUE, scale=TRUE)
+
   # Case where initial estimator is LS
   if(initial.model=="LS"){
-
-    # Centering and scaling data
-    x.s <- scale(x, center=TRUE, scale=TRUE)
-    y.s <- scale(y, center=TRUE, scale=TRUE)
 
     # Stop algorithm if LS intial estimate and p>n
     if(ncol(x.s)>nrow(x.s))

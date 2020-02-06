@@ -139,8 +139,8 @@ nnGarrote <- function(x, y, intercept = TRUE,
   } else if(initial.model=="glmnet"){
 
     if(is.null(lambda.initial))
-      initial.beta <- coef(glmnet::cv.glmnet(x.s, y, alpha=alpha), s="lambda.min") else
-        initial.beta <- coef(glmnet::glmnet(x.s, y, alpha=alpha, lambda=lambda.initial))
+      initial.beta <- coef(glmnet::cv.glmnet(x.s, y.s, alpha=alpha), s="lambda.min") else
+        initial.beta <- coef(glmnet::glmnet(x.s, y.s, alpha=alpha, lambda=lambda.initial))
 
     # Computing the z matrix
     z <- sapply(1:ncol(x.s),
