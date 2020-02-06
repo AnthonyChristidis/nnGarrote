@@ -140,7 +140,7 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
     z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
     # Storing the lambda.nng vector
     if(is.null(lambda.nng))
-      lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1)
+      lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1/2)
     # Variables to store the CV MSPEs
     nng.mspe <- numeric(length(lambda.nng))
 
@@ -159,7 +159,7 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
       z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
       # Storing the lambda.nng vector
       if(is.null(lambda.nng))
-        lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1)
+        lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1/2)
   }
 
   # Variable to store the CV MSPEs
