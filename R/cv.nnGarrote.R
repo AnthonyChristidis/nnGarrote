@@ -140,7 +140,7 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
     z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
     # Storing the lambda.nng vector
     if(is.null(lambda.nng))
-      lambda.nng <- z.fit$lambda
+      lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1)
     # Variables to store the CV MSPEs
     nng.mspe <- numeric(length(lambda.nng))
 
@@ -159,14 +159,16 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
       z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
       # Storing the lambda.nng vector
       if(is.null(lambda.nng))
-        lambda.nng <- z.fit$lambda
+        lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1)
   }
 
   # Variable to store the CV MSPEs
   nng.mspe <- numeric(length(lambda.nng))
+  # Message for long Computation
+  cat("Performing cross-validation for", length(lambda.nng), "values of the shrinkage parameter \"lambda.nng\":\n")
   # CV Procedure
   for(lambda.id in 1:length(lambda.nng)){
-
+    cat("",lambda.id, "|")
     for(fold.id in 1:nfolds){
       x.train <- x[-folds[[fold.id]],,drop=FALSE]; x.test <- x[folds[[fold.id]],,drop=FALSE]
       y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
