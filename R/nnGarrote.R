@@ -113,16 +113,20 @@ nnGarrote <- function(x, y, intercept = TRUE,
     stop("initial.model should be one of \"LS\" or \"glmnet\".")
   }
 
+  #
+
   # Centering and scaling data
   x.s <- scale(x, center=TRUE, scale=TRUE)
   y.s <- scale(y, center=TRUE, scale=TRUE)
 
+  # Stop algorithm if LS intial estimate and p>n
+  if(initial.model=="LS" && ncol(x.s)>nrow(x.s)){
+    warning("Case where p variables greater than n observations. Option \"initial.model=glmnet\" will be enforced.")
+    initial.model="glmnet"
+  }
+
   # Case where initial estimator is LS
   if(initial.model=="LS"){
-
-    # Stop algorithm if LS intial estimate and p>n
-    if(ncol(x.s)>nrow(x.s))
-      stop("Case where p variables greater than n observations. Use \"initial.model=glmnet\" option if needed.")
 
     # Getting the initial shrinkage parameters
     initial.beta <- solve(t(x.s)%*%x.s)%*%t(x.s)%*%y.s

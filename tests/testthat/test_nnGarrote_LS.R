@@ -9,7 +9,7 @@ library(nnGarrote)
 context("Ensure LS option is invalid for high-dimensional data (p>n).")
 
 # There should be an error if we want to compute the IF TS, and no returns are provided
-test_that("Error for the non-negative garrote esitmator with more variables than observations when used with LS.", {
+test_that("Warning for the non-negative garrote esitmator with more variables than observations when used with LS.", {
 
   # Setting the parameters
   p <- 500
@@ -37,10 +37,10 @@ test_that("Error for the non-negative garrote esitmator with more variables than
   x.test <- mvnfast::rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
   y.test <- 1 + x.test %*% true.beta + rnorm(n.test, sd=sigma.epsilon)
 
-  expect_error(
+  expect_warning(
     nng.out <- cv.nnGarrote(x.train, y.train, intercept=TRUE,
                             initial.model=c("LS", "glmnet")[1],
-                            lambda.nng=NULL, lambda.initial=NULL, alpha=0,
+                            lambda.nng=1, lambda.initial=NULL, alpha=0,
                             nfolds=5)
     )
 })
