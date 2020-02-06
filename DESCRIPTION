@@ -1,11 +1,22 @@
 Package: nnGarrote
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
-Encoding: UTF-8
-LazyData: true
+Title: Non-negative Garrote Estimation with Penalized Initial Estimators
+Version: 1.0.0
+Date: 2020-02-05
+Author: Anthony Christidis <anthony.christidis@stat.ubc.ca>,
+    Stefan Van Aelst <stefan.vanaelst@kuleuven.be>,
+    Ruben Zamar <ruben@stat.ubc.ca>
+Maintainer: Anthony Christidis <anthony.christidis@stat.ubc.ca>
+Description: Functions to compute the non-negative garrote estimator as 
+             proposed by Breiman (1995) <https://www.jstor.org/stable/1269730>
+             with the penalized initial estimators extension as proposed by 
+             Yuan and Lin (2007) <https://www.jstor.org/stable/4623260>.
+License: GPL (>= 2)
+Biarch: true
+Imports: multicool,
+    glmnet,
+    caret,
+    mvnfast
+RoxygenNote: 7.0.2
+Suggests: 
+    testthat

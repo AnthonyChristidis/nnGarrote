@@ -1,25 +1,24 @@
 #'
-#' @importFrom stats coef predict sd
+#' @title Non-negative Garrote Estimator - Cross-Validation
 #'
-#' @title Non-negative Garrote Estimator
-#'
-#' @description \code{nnGarrote} computes the non-negative garrote estimator.
+#' @description \code{cv.nnGarrote} computes the non-negative garrote estimator with cross-validation.
 #'
 #' @param x Design matrix.
 #' @param y Response vector.
 #' @param intercept Boolean variable to determine if there is intercept (default is TRUE) or not.
 #' @param initial.model Model used for the groups. Must be one of "LS" (default) or "glmnet".
 #' @param lambda.nng Shinkage parameter for the non-negative garrote. If NULL(default), it will be computed based on data.
-#' @param lambda.initial The shinkrage parameter for the "glmnet" regularization. If NULL (default), optimal value is chosen by cross-validation.
+#' @param lambda.initial The shinkrage parameter for the "glmnet" regularization.
 #' @param alpha Elastic net mixing parameter for initial estimate. Should be between 0 (default) and 1.
+#' @param nfolds Number of folds for the cross-validation procedure.
 #'
-#' @return An object of class nnGarrote.
+#' @return An object of class cv.nnGarrote
 #'
 #' @export
 #'
 #' @author Anthony-Alexander Christidis, \email{anthony.christidis@stat.ubc.ca}
 #'
-#' @seealso \code{\link{coef.nnGarrote}}, \code{\link{predict.nnGarrote}}
+#' @seealso \code{\link{coef.cv.nnGarrote}}, \code{\link{predict.cv.nnGarrote}}
 #'
 #' @examples
 #' # Setting the parameters
@@ -49,10 +48,12 @@
 #' # y.test <- 1 + x.test %*% true.beta + rnorm(n.test, sd=sigma.epsilon)
 #'
 #' # Applying the NNG with Ridge as an initial estimator
-#' # nng.out <- nnGarrote(x.train, y.train, intercept=TRUE,
-#' #                      initial.model=c("LS", "glmnet")[2],
-#' #                      lambda.nng=NULL, lambda.initial=NULL, alpha=0)
+#' # nng.out <- cv.nnGarrote(x.train, y.train, intercept=TRUE,
+#' #                         initial.model=c("LS", "glmnet")[2],
+#' #                         lambda.nng=NULL, lambda.initial=NULL, alpha=0,
+#' #                         nfolds=5)
 #' # nng.predictions <- predict(nng.out, newx=x.test)
+#' # mean((nng.predictions-y.test)^2)/sigma.epsilon^2
 #'
 #' # Ridge Regression
 #' # cv.ridge <- glmnet::cv.glmnet(x.train, y.train, alpha=0)
@@ -62,10 +63,12 @@
 #'
 #' # Comparisons of the coefficients
 #' # coef(nng.out)
-#' # coef(ridge)#'
-nnGarrote <- function(x, y, intercept = TRUE,
-                      initial.model = c("LS", "glmnet")[1],
-                      lambda.nng = NULL, lambda.initial = NULL, alpha = 0){
+#' # coef(ridge)
+#'
+cv.nnGarrote <- function(x, y, intercept = TRUE,
+                         initial.model = c("LS", "glmnet")[1],
+                         lambda.nng = NULL, lambda.initial = NULL, alpha = 0,
+                         nfolds=5){
 
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
@@ -113,12 +116,15 @@ nnGarrote <- function(x, y, intercept = TRUE,
     stop("initial.model should be one of \"LS\" or \"glmnet\".")
   }
 
-  # Centering and scaling data
-  x.s <- scale(x, center=TRUE, scale=TRUE)
-  y.s <- scale(y, center=TRUE, scale=TRUE)
+  # Creating the folds
+  folds <- caret::createFolds(1:nrow(x), nfolds)
 
   # Case where initial estimator is LS
   if(initial.model=="LS"){
+
+    # Centering and scaling data
+    x.s <- scale(x, center=TRUE, scale=TRUE)
+    y.s <- scale(y, center=TRUE, scale=TRUE)
 
     # Stop algorithm if LS intial estimate and p>n
     if(ncol(x.s)>nrow(x.s))
@@ -127,65 +133,64 @@ nnGarrote <- function(x, y, intercept = TRUE,
     # Getting the initial shrinkage parameters
     initial.beta <- solve(t(x.s)%*%x.s)%*%t(x.s)%*%y.s
     z <- sapply(1:ncol(x.s),
-                     function(x, x.s, beta) {return(x.s[,x, drop=FALSE]*beta[x])},
-                     x.s=x.s, beta=initial.beta)
+                function(x, x.s, beta) {return(x.s[,x, drop=FALSE]*beta[x])},
+                x.s=x.s, beta=initial.beta)
 
     # Applying the NNG
     z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
     # Storing the lambda.nng vector
     if(is.null(lambda.nng))
       lambda.nng <- z.fit$lambda
+    # Variables to store the CV MSPEs
+    nng.mspe <- numeric(length(lambda.nng))
 
   } else if(initial.model=="glmnet"){
 
     if(is.null(lambda.initial))
-      initial.beta <- coef(glmnet::cv.glmnet(x.s, y, alpha=alpha), s="lambda.min") else
-        initial.beta <- coef(glmnet::glmnet(x.s, y, alpha=alpha, lambda=lambda.initial))
+      initial.beta <- coef(glmnet::cv.glmnet(x.s, y.s, alpha=alpha), s="lambda.min") else
+        initial.beta <- coef(glmnet::glmnet(x.s, y.s, alpha=alpha, lambda=lambda.initial))
 
-    # Computing the z matrix
-    z <- sapply(1:ncol(x.s),
-                function(x, x.s, beta) {return(x.s[,x, drop=FALSE]*beta[x])},
-                x.s=x.s, beta=initial.beta)
+      # Computing the z matrix
+      z <- sapply(1:ncol(x.s),
+                  function(t, x.s, beta) {return(x.s[,t, drop=FALSE]*beta[t])},
+                  x.s=x.s, beta=initial.beta)
 
-    # Applying the NNG
-    z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0, lambda=lambda.nng)
-    # Storing the lambda.nng vector
-    if(is.null(lambda.nng))
-      lambda.nng <- z.fit$lambda
+      # Applying the NNG
+      z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
+      # Storing the lambda.nng vector
+      if(is.null(lambda.nng))
+        lambda.nng <- z.fit$lambda
   }
 
-  # Computing the fitted NNG vector for each value of the NNG
-  nng.beta <- list()
-  for(lambda.ind in 1:length(lambda.nng)){
-    nng.beta[[lambda.ind]] <- sapply(1:ncol(x.s),
-                                     function(x, beta, z.beta) {return(z.beta[x]*beta[x])},
-                                     beta=initial.beta, z.beta=z.fit$beta[,lambda.ind], simplify = TRUE)
-  }
-  # Unlisting the betas
-  nng.beta <- matrix(unlist(nng.beta), byrow=FALSE, nrow=ncol(x.s))
+  # Variable to store the CV MSPEs
+  nng.mspe <- numeric(length(lambda.nng))
+  # CV Procedure
+  for(lambda.id in 1:length(lambda.nng)){
 
-  # Scaling back to original scale
-  if(intercept){
-
-    nng.beta.temp <- matrix(nrow=nrow(nng.beta)+1, ncol=ncol(nng.beta))
-    nng.intercept <- numeric(ncol(nng.beta))
-    for(lambda.ind in 1:length(lambda.nng)){
-      nng.beta[, lambda.ind] <- nng.beta[, lambda.ind] * (sd(y)/apply(x, 2, sd))
-      # Computing the intercept
-      nng.intercept[lambda.ind] <- as.numeric(mean(y) - apply(x, 2, mean)%*%nng.beta[,lambda.ind])
-      nng.beta.temp[,lambda.ind] <- c(nng.intercept[lambda.ind], nng.beta[,lambda.ind])
+    for(fold.id in 1:nfolds){
+      x.train <- x[-folds[[fold.id]],,drop=FALSE]; x.test <- x[folds[[fold.id]],,drop=FALSE]
+      y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
+      fold.nng <- nnGarrote(x=x.train, y=y.train, intercept=intercept,
+                            initial.model=initial.model,
+                            lambda.nng=lambda.nng[lambda.id], lambda.initial=lambda.initial, alpha=alpha)
+      fold.pred <- predict(fold.nng, newx=x.test)
+      nng.mspe[lambda.id] <- nng.mspe[lambda.id] + mean((y.test - fold.pred)^2)
     }
-    nng.beta <- nng.beta.temp
-    rm(nng.beta.temp)
-  } else{
-
-      for(lambda.ind in 1:length(lambda.ind))
-        nng.beta[,lambda.ind] <- nng.beta[, lambda.ind] * (sd(y)/apply(x, 2, sd))
   }
+
+  # Storing the optimal CV parameter for the NNG
+  optimal.lambda.nng.ind <- which.min(nng.mspe); optimal.lambda.nng <- lambda.nng[optimal.lambda.nng.ind]
+
+  # Computing the full data NNG
+  nng.out <- nnGarrote(x=x.train, y=y.train, intercept=intercept,
+                       initial.model=initial.model,
+                       lambda.nng=lambda.nng, lambda.initial=lambda.initial, alpha=alpha)
 
   # Return the output
-  nng.out <- list(betas=nng.beta, intercepts=nng.intercept, lambda.nng=lambda.nng)
-  nng.out <- construct.nnGarrote(nng.out, fn_call=match.call())
+  nng.out <- construct.cv.nnGarrote(nng.out, fn_call=match.call())
+  nng.out$cv.mspse <- nng.mspe
+  nng.out$optimal.lambda.nng.ind <- optimal.lambda.nng.ind
+  nng.out$optimal.lambda.nng <- optimal.lambda.nng
   return(nng.out)
 }
 
