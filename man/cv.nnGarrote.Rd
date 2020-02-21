@@ -12,7 +12,8 @@ cv.nnGarrote(
   lambda.nng = NULL,
   lambda.initial = NULL,
   alpha = 0,
-  nfolds = 5
+  nfolds = 5,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ cv.nnGarrote(
 \item{alpha}{Elastic net mixing parameter for initial estimate. Should be between 0 (default) and 1.}
 
 \item{nfolds}{Number of folds for the cross-validation procedure.}
+
+\item{verbose}{Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).}
 }
 \value{
 An object of class cv.nnGarrote

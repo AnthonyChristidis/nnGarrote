@@ -11,6 +11,7 @@
 #' @param lambda.initial The shinkrage parameter for the "glmnet" regularization.
 #' @param alpha Elastic net mixing parameter for initial estimate. Should be between 0 (default) and 1.
 #' @param nfolds Number of folds for the cross-validation procedure.
+#' @param verbose Boolean variable to determine if console output for cross-validation progress is printed (default is TRUE).
 #'
 #' @return An object of class cv.nnGarrote
 #'
@@ -68,7 +69,8 @@
 cv.nnGarrote <- function(x, y, intercept = TRUE,
                          initial.model = c("LS", "glmnet")[1],
                          lambda.nng = NULL, lambda.initial = NULL, alpha = 0,
-                         nfolds=5){
+                         nfolds=5,
+                         verbose=TRUE){
 
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
@@ -167,10 +169,12 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
   # Variable to store the CV MSPEs
   nng.mspe <- numeric(length(lambda.nng))
   # Message for long Computation
-  cat("Performing cross-validation for", length(lambda.nng), "values of the shrinkage parameter \"lambda.nng\":\n")
+  if(verbose)
+    cat("Performing cross-validation for", length(lambda.nng), "values of the shrinkage parameter \"lambda.nng\":\n")
   # CV Procedure
   for(lambda.id in 1:length(lambda.nng)){
-    cat("",lambda.id, "|")
+    if(verbose)
+      cat("",lambda.id, "|")
     for(fold.id in 1:nfolds){
       x.train <- x[-folds[[fold.id]],,drop=FALSE]; x.test <- x[folds[[fold.id]],,drop=FALSE]
       y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]

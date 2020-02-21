@@ -1,6 +1,6 @@
 Package: nnGarrote
 Type: Package
-Title: Non-negative Garrote Estimation with Penalized Initial Estimators
+Title: Non-Negative Garrote Estimation with Penalized Initial Estimators
 Version: 1.0.0
 Date: 2020-02-06
 Author: Anthony Christidis <anthony.christidis@stat.ubc.ca>,
