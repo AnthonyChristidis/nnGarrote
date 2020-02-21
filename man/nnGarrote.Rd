@@ -57,26 +57,31 @@ diag(Sigma.rho) <- 1
 sigma.epsilon <- as.numeric(sqrt((t(true.beta) \%*\% Sigma.rho \%*\% true.beta)/SNR))
 
 # Simulate some data
-# x.train <- mvnfast::rmvn(n, mu=rep(0,p), sigma=Sigma.rho)
-# y.train <- 1 + x.train \%*\% true.beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
-# x.test <- mvnfast::rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
-# y.test <- 1 + x.test \%*\% true.beta + rnorm(n.test, sd=sigma.epsilon)
+x.train <- mvnfast::rmvn(n, mu=rep(0,p), sigma=Sigma.rho)
+y.train <- 1 + x.train \%*\% true.beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
+x.test <- mvnfast::rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
+y.test <- 1 + x.test \%*\% true.beta + rnorm(n.test, sd=sigma.epsilon)
 
 # Applying the NNG with Ridge as an initial estimator
-# nng.out <- nnGarrote(x.train, y.train, intercept=TRUE,
-#                      initial.model=c("LS", "glmnet")[2],
-#                      lambda.nng=NULL, lambda.initial=NULL, alpha=0)
-# nng.predictions <- predict(nng.out, newx=x.test)
+\donttest{
+nng.out <- nnGarrote(x.train, y.train, intercept=TRUE,
+                     initial.model=c("LS", "glmnet")[2],
+                     lambda.nng=NULL, lambda.initial=NULL, alpha=0)
+nng.predictions <- predict(nng.out, newx=x.test)
+}
 
 # Ridge Regression
-# cv.ridge <- glmnet::cv.glmnet(x.train, y.train, alpha=0)
-# ridge <- glmnet::glmnet(x.train, y.train, alpha=0, lambda=cv.ridge$lambda.min)
-# ridge.predictions <- predict(ridge, newx=x.test)
-# mean((ridge.predictions-y.test)^2)/sigma.epsilon^2
+cv.ridge <- glmnet::cv.glmnet(x.train, y.train, alpha=0)
+ridge <- glmnet::glmnet(x.train, y.train, alpha=0, lambda=cv.ridge$lambda.min)
+ridge.predictions <- predict(ridge, newx=x.test)
+mean((ridge.predictions-y.test)^2)/sigma.epsilon^2
 
 # Comparisons of the coefficients
-# coef(nng.out)
-# coef(ridge)#'
+\donttest{
+coef(nng.out)
+}
+coef(ridge)
+
 }
 \seealso{
 \code{\link{coef.nnGarrote}}, \code{\link{predict.nnGarrote}}
