@@ -29,10 +29,10 @@ Here is some code to compute the non-negative garrote estimator with ridge regre
 
 ``` r
 # Setting the parameters
-p <- 500
-n <- 100
+p <- 100
+n <- 500
 n.test <- 5000
-sparsity <- 0.15
+sparsity <- 0.2
 rho <- 0.5
 SNR <- 3
 set.seed(0)
@@ -56,7 +56,7 @@ y.test <- 1 + x.test %*% true.beta + rnorm(n.test, sd=sigma.epsilon)
 
 # Applying the NNG with Ridge as an initial estimator
 nng.out <- cv.nnGarrote(x.train, y.train, intercept=TRUE,
-                        initial.model=c("LS", "glmnet")[2],
+                        initial.model=c("LS", "glmnet")[1],
                         lambda.nng=NULL, lambda.initial=NULL, alpha=0,
                         nfolds=5)
 nng.predictions <- predict(nng.out, newx=x.test)
@@ -73,7 +73,7 @@ coef(nng.out)
 coef(ridge)
 ```
 
-Note that the prediction accuracy is nearly identical, but the non-negative garrote output for the coefficient is much closer to the true one than the ridge regression output.
+Note that the prediction accuracy is improved for the non-negative garrote in comparison to the ridge regression estimate. Also, the non-negative garrote output for the coefficient is much closer to the true one than the ridge regression output (in terms of the recall and precision).
 
 ### License
 

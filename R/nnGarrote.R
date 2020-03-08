@@ -140,7 +140,7 @@ nnGarrote <- function(x, y, intercept = TRUE,
                      x.s=x.s, beta=initial.beta)
 
     # Applying the NNG
-    z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
+    z.fit <- glmnet::glmnet(z, y.s, alpha=1, intercept=FALSE, lower.limits=0, lambda=lambda.nng)
     # Storing the lambda.nng vector
     if(is.null(lambda.nng))
       lambda.nng <- z.fit$lambda
@@ -157,7 +157,7 @@ nnGarrote <- function(x, y, intercept = TRUE,
                 x.s=x.s, beta=initial.beta)
 
     # Applying the NNG
-    z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0, lambda=lambda.nng)
+    z.fit <- glmnet::glmnet(z, y.s, alpha=1, intercept=FALSE, lower.limits=0, lambda=lambda.nng)
     # Storing the lambda.nng vector
     if(is.null(lambda.nng))
       lambda.nng <- z.fit$lambda

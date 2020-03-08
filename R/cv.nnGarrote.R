@@ -145,12 +145,13 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
                 x.s=x.s, beta=initial.beta)
 
     # Applying the NNG
-    z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
+    z.fit <- glmnet::glmnet(z, y.s, alpha=1, intercept=FALSE, lower.limits=0)
     # Storing the lambda.nng vector
-    if(is.null(lambda.nng))
-      lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1/2)
-    # Variables to store the CV MSPEs
-    nng.mspe <- numeric(length(lambda.nng))
+    if(is.null(lambda.nng)){
+      lambda.nng <- seq(range(z.fit$lambda)[1], range(z.fit$lambda)[2],
+                        by=(range(z.fit$lambda)[2]-range(z.fit$lambda)[1])/length(z.fit$lambda))
+      lambda.nng <- rev(lambda.nng)
+    }
 
   } else if(initial.model=="glmnet"){
 
@@ -164,10 +165,13 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
                   x.s=x.s, beta=initial.beta)
 
       # Applying the NNG
-      z.fit <- glmnet::glmnet(z, y.s, alpha=alpha, intercept=FALSE, lower.limits=0)
+      z.fit <- glmnet::glmnet(z, y.s, alpha=1, intercept=FALSE, lower.limits=0)
       # Storing the lambda.nng vector
-      if(is.null(lambda.nng))
-        lambda.nng <- seq(0, 1.5*z.fit$lambda[length(z.fit$lambda)], by=1/2)
+      if(is.null(lambda.nng)){
+        lambda.nng <- seq(range(z.fit$lambda)[1], range(z.fit$lambda)[2],
+                          by=(range(z.fit$lambda)[2]-range(z.fit$lambda)[1])/length(z.fit$lambda)*4)
+        lambda.nng <- rev(lambda.nng)
+      }
   }
 
   # Variable to store the CV MSPEs
@@ -180,21 +184,21 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
     if(verbose)
       cat("",lambda.id, "|")
     for(fold.id in 1:nfolds){
-      x.train <- x[-folds[[fold.id]],,drop=FALSE]; x.test <- x[folds[[fold.id]],,drop=FALSE]
-      y.train <- y[-folds[[fold.id]]]; y.test <- y[folds[[fold.id]]]
-      fold.nng <- nnGarrote(x=x.train, y=y.train, intercept=intercept,
+      x.train.fold <- x[-folds[[fold.id]],,drop=FALSE]; x.test.fold <- x[folds[[fold.id]],,drop=FALSE]
+      y.train.fold <- y[-folds[[fold.id]]]; y.test.fold <- y[folds[[fold.id]]]
+      fold.nng <- nnGarrote(x=x.train.fold, y=y.train.fold, intercept=intercept,
                             initial.model=initial.model,
                             lambda.nng=lambda.nng[lambda.id], lambda.initial=lambda.initial, alpha=alpha)
-      fold.pred <- predict(fold.nng, newx=x.test)
-      nng.mspe[lambda.id] <- nng.mspe[lambda.id] + mean((y.test - fold.pred)^2)
+      fold.pred <- predict(fold.nng, newx=x.test.fold)
+      nng.mspe[lambda.id] <- nng.mspe[lambda.id] + mean((y.test.fold - fold.pred)^2)
     }
   }
 
   # Storing the optimal CV parameter for the NNG
-  optimal.lambda.nng.ind <- which.min(nng.mspe); optimal.lambda.nng <- lambda.nng[optimal.lambda.nng.ind]
+  optimal.lambda.nng.ind <- which.min(nng.mspe); optimal.lambda.nng <- lambda.nng[which.min(nng.mspe)]
 
   # Computing the full data NNG
-  nng.out <- nnGarrote(x=x.train, y=y.train, intercept=intercept,
+  nng.out <- nnGarrote(x=x, y=y, intercept=intercept,
                        initial.model=initial.model,
                        lambda.nng=lambda.nng, lambda.initial=lambda.initial, alpha=alpha)
 
