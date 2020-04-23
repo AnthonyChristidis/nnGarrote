@@ -4,16 +4,17 @@
 
 # Required libraries
 library(nnGarrote)
+library(mvnfast)
 
 # Context of test script
-context("Ensure LS option is invalid for high-dimensional data (p>n).")
+context("Ensure output is returned.")
 
 # There should be an error if we want to compute the IF TS, and no returns are provided
-test_that("Warning for the non-negative garrote esitmator with more variables than observations when used with LS.", {
+test_that("The cross-validation function \"cv.nnGarrote\" is returning an output.", {
 
   # Setting the parameters
-  p <- 500
-  n <- 100
+  p <- 50
+  n <- 500
   n.test <- 5000
   sparsity <- 0.15
   rho <- 0.5
@@ -32,15 +33,15 @@ test_that("Warning for the non-negative garrote esitmator with more variables th
   sigma.epsilon <- as.numeric(sqrt((t(true.beta) %*% Sigma.rho %*% true.beta)/SNR))
 
   # Simulate some data
-  x.train <- mvnfast::rmvn(n, mu=rep(0,p), sigma=Sigma.rho)
+  x.train <- rmvn(n, mu=rep(0,p), sigma=Sigma.rho)
   y.train <- 1 + x.train %*% true.beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
-  x.test <- mvnfast::rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
+  x.test <- rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
   y.test <- 1 + x.test %*% true.beta + rnorm(n.test, sd=sigma.epsilon)
 
-  expect_warning(
+  expect_output(
     nng.out <- cv.nnGarrote(x.train, y.train, intercept=TRUE,
                             initial.model=c("LS", "glmnet")[1],
-                            lambda.nng=1, lambda.initial=NULL, alpha=0,
+                            lambda.nng=NULL, lambda.initial=NULL, alpha=0,
                             nfolds=5)
     )
 })

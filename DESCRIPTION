@@ -1,8 +1,8 @@
 Package: nnGarrote
 Type: Package
 Title: Non-Negative Garrote Estimation with Penalized Initial Estimators
-Version: 1.0.1
-Date: 2020-03-08
+Version: 1.0.2
+Date: 2020-03-15
 Author: Anthony Christidis <anthony.christidis@stat.ubc.ca>,
     Stefan Van Aelst <stefan.vanaelst@kuleuven.be>,
     Ruben Zamar <ruben@stat.ubc.ca>
@@ -15,8 +15,8 @@ License: GPL (>= 2)
 Biarch: true
 Imports: multicool,
     glmnet,
-    caret,
-    mvnfast
+    caret
 RoxygenNote: 7.0.2
 Suggests: 
-    testthat
+    testthat,
+    mvnfast

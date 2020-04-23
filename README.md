@@ -49,6 +49,7 @@ diag(Sigma.rho) <- 1
 sigma.epsilon <- as.numeric(sqrt((t(true.beta) %*% Sigma.rho %*% true.beta)/SNR))
 
 # Simulate some data
+library(mvnfast)
 x.train <- mvnfast::rmvn(n, mu=rep(0,p), sigma=Sigma.rho)
 y.train <- 1 + x.train %*% true.beta + rnorm(n=n, mean=0, sd=sigma.epsilon)
 x.test <- mvnfast::rmvn(n.test, mu=rep(0,p), sigma=Sigma.rho)
