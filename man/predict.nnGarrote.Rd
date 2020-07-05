@@ -53,8 +53,7 @@ nng.out <- nnGarrote(x.train, y.train, intercept=TRUE,
                      initial.model=c("LS", "glmnet")[2],
                      lambda.nng=NULL, lambda.initial=NULL, alpha=0)
 nng.predictions <- predict(nng.out, newx=x.test)
-mean((nng.predictions-y.test)^2)/sigma.epsilon^2
-coef(nng.out)
+nng.coef <- coef(nng.out)
 }
 
 }

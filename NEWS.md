@@ -6,3 +6,6 @@
 
 # nnGarrote 1.0.2
 * Remove unnecessary package dependency (mvnfast) and change basic test for package.
+
+# nnGarrote 1.0.3
+* Fix examples bugs for nnGarrote function and methods.
