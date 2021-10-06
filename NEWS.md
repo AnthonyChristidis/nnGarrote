@@ -9,3 +9,6 @@
 
 # nnGarrote 1.0.3
 * Fix examples bugs for nnGarrote function and methods.
+
+# nnGarrote 1.0.4
+* Remove unnecessary imports.

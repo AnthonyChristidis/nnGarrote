@@ -1,4 +1,6 @@
 #'
+#' @importFrom stats rbinom
+#'
 #' @title Non-negative Garrote Estimator - Cross-Validation
 #'
 #' @description \code{cv.nnGarrote} computes the non-negative garrote estimator with cross-validation.
@@ -63,8 +65,8 @@
 cv.nnGarrote <- function(x, y, intercept = TRUE,
                          initial.model = c("LS", "glmnet")[1],
                          lambda.nng = NULL, lambda.initial = NULL, alpha = 0,
-                         nfolds=5,
-                         verbose=TRUE){
+                         nfolds = 5,
+                         verbose = TRUE){
 
   # Check input data
   if (all(!inherits(x, "matrix"), !inherits(x, "data.frame"))) {
@@ -113,7 +115,7 @@ cv.nnGarrote <- function(x, y, intercept = TRUE,
   }
 
   # Creating the folds
-  folds <- caret::createFolds(1:nrow(x), nfolds)
+  folds <- create_folds(nrow(x), nfolds)
 
   # Centering and scaling data
   x.s <- scale(x, center=TRUE, scale=TRUE)
