@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.com/AnthonyChristidis/nnGarrote.svg?branch=master)](https://travis-ci.com/AnthonyChristidis/nnGarrote) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/nnGarrote)](https://cran.r-project.org/package=nnGarrote) [![Downloads](http://cranlogs.r-pkg.org/badges/nnGarrote)](https://cran.r-project.org/package=nnGarrote)
+[![Build Status](https://app.travis-ci.com/AnthonyChristidis/nnGarrote.svg?branch=master)](https://app.travis-ci.com/AnthonyChristidis/nnGarrote) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/nnGarrote)](https://cran.r-project.org/package=nnGarrote) [![Downloads](http://cranlogs.r-pkg.org/badges/nnGarrote)](https://cran.r-project.org/package=nnGarrote)
 
 nnGarrote
 =====
